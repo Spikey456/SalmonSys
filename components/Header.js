@@ -8,22 +8,28 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import Header from './components/Header';
 
-const App = () => {
+const Header = ({title}) => {
   return (
     <>
-      <View style={styles.container}>
-        <Header title={'Norwegian Salmon'} />
+      <View style={styles.header}>
+        <Text style={styles.text}>{title}</Text>
       </View>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
+    height: 60,
+    padding: 15,
+    backgroundColor: 'darkslateblue',
+  },
+  text: {
+    color: 'white',
+    fontSize: 23,
+    textAlign: 'center',
   },
 });
 
-export default App;
+export default Header;
