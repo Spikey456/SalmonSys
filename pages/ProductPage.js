@@ -9,22 +9,19 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const Header = ({title}) => {
+const ProductPage = () => {
   return (
-    <>
-      <View>
-        <Text style={styles.text}>{title}</Text>
-      </View>
-    </>
+    <View style={styles.header}>
+      <Text>Product Page</Text>
+      <Text>Show image here show image there, add to cart button here</Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  text: {
-    color: 'white',
-    fontSize: 23,
-    textAlign: 'center',
+  container: {
+    flex: 1,
   },
 });
 
-export default Header;
+export default ProductPage;

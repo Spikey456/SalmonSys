@@ -7,23 +7,36 @@
  */
 import 'react-native-gesture-handler';
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+
 import Header from './components/Header';
+import {NavigationContainer} from '@react-navigation/native';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createStackNavigator} from '@react-navigation/stack';
 
-const App = () => {
-  return (
-    <>
-      <View style={styles.container}>
-        <Header title={'Norwegian Salmon'} />
-      </View>
-    </>
-  );
-};
+import Home from './pages/Home';
+import Products from './pages/Products';
+import ProductPage from './pages/ProductPage';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
-export default App;
+export default class App extends React.Component {
+  render() {
+    const createProductStack = () => (
+      <Stack.Navigator>
+        <Stack.Screen name="Products" component={Products} />
+        <Stack.Screen name="Product Page" component={ProductPage} />
+      </Stack.Navigator>
+    );
+    return (
+      <>
+        <NavigationContainer>
+          <Drawer.Navigator initialRouteName="Home">
+            <Drawer.Screen name="Home" component={Home} />
+            <Drawer.Screen name="Products" children={createProductStack} />
+          </Drawer.Navigator>
+        </NavigationContainer>
+      </>
+    );
+  }
+}
