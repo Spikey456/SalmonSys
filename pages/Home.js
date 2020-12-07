@@ -9,14 +9,12 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-class Home extends React.Component {
-  render() {
-    return (
-      <View style={styles.header}>
-        <Text>This is the Home Page</Text>
-      </View>
-    );
-  }
+export default function Home({route}) {
+  return (
+    <View style={styles.header}>
+      <Text>Hello {route.params.user.user.name}</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -24,5 +22,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-export default Home;
