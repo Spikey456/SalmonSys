@@ -12,36 +12,23 @@ import {
 } from 'react-native';
 import {firebase} from '../components/firebase';
 
-const Items = ({product, user}) => {
-  const [quantity, setQuantity] = useState(1);
+const CartItems = ({cartItem, user, loading, setLoading}) => {
+  const [quantity, setQuantity] = useState(cartItem.quantity);
   const imgDefault =
     'https://img2.pngio.com/documentation-screenshotlayer-api-default-png-250_250.png';
 
-  const addToCart = () => {
-    if (quantity > 0) {
-      let cart = {};
-      cart[product.id] = product;
-      cart[product.id].quantity = quantity;
-      console.log(cart);
-      firebase
-        .database()
-        .ref(`customers/${user.uid}/cart`)
-        .child(product.id)
-        .set({
-          product,
-          quantity: quantity,
-        })
-        .then(() => {
-          console.log('Added to cart');
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+  const updateQuantity = (id, num) => {
+    firebase
+      .database()
+      .ref(`customers/${user.uid}/cart/${id}`)
+      .update({quantity: num})
+      .then(() => {
+        setLoading(false);
+        console.log('Quantity Updated');
+      });
   };
-
-  return (
-    <Card style={styles.cardRow} key={product.id}>
+  /*return (
+    <Card style={styles.cardRow} key={cartItem.product.id}>
       <Card.Content>
         <View
           style={{
@@ -51,11 +38,47 @@ const Items = ({product, user}) => {
           }}>
           <Image
             source={{
-              uri: product.image ? product.image : imgDefault,
+              uri: cartItem.product.image ? cartItem.product.image : imgDefault,
             }}
             style={{
-              width: 120,
-              height: 120,
+              width: 70,
+              height: 70,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: '#F44336',
+            }}
+          />
+          <Title>{cartItem.product.name}</Title>
+        </View>
+      </Card.Content>
+      <Card.Actions>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            console.log('Remove');
+          }}>
+          <Text style={styles.buttonTitle}>Remove</Text>
+        </TouchableOpacity>
+      </Card.Actions>
+    </Card>
+  );*/
+
+  return (
+    <Card style={styles.cardRow} key={cartItem.product.id}>
+      <Card.Content>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Image
+            source={{
+              uri: cartItem.product.image ? cartItem.product.image : imgDefault,
+            }}
+            style={{
+              width: 100,
+              height: 100,
               borderRadius: 10,
               borderWidth: 1,
               borderColor: '#F44336',
@@ -68,13 +91,12 @@ const Items = ({product, user}) => {
               alignItems: 'center',
               justifyContent: 'space-around',
             }}>
-            <Title>{product.name}</Title>
-            <Text>Stocks: {product.stocks}</Text>
+            <Title>{cartItem.product.name}</Title>
             <Title style={{color: '#ff7334'}}>
               PHP
               {user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
-                ? product.resellerPrice
-                : product.wholeSalePrice}
+                ? cartItem.product.resellerPrice
+                : cartItem.product.wholeSalePrice}
             </Title>
           </View>
         </View>
@@ -89,12 +111,13 @@ const Items = ({product, user}) => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              addToCart();
+              //addToCart();
+              //updateQuantity(cartItem.product.id);
             }}>
-            <Text style={styles.buttonTitle}>Add to Cart</Text>
+            <Text style={styles.buttonTitle}>Remove</Text>
           </TouchableOpacity>
           <InputSpinner
-            max={product.stocks}
+            max={cartItem.product.stocks}
             min={0}
             step={0.5}
             colorMax={'#f04048'}
@@ -103,7 +126,9 @@ const Items = ({product, user}) => {
             rounded={false}
             showBorder
             onChange={(num) => {
+              setLoading(true);
               setQuantity(num);
+              updateQuantity(cartItem.product.id, num);
             }}
           />
         </View>
@@ -130,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   button: {
-    backgroundColor: '#ff7334',
+    backgroundColor: '#8f0611',
     marginLeft: 10,
     marginRight: 30,
     height: 50,
@@ -150,4 +175,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Items;
+export default CartItems;

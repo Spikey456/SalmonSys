@@ -14,6 +14,7 @@ import Header from './components/Header';
 import {NavigationContainer} from '@react-navigation/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import Home from './pages/Home';
 import Cart from './pages/Cart';
@@ -27,8 +28,10 @@ const Stack = createStackNavigator();
 export default function App() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
+    setLoading(true);
     firebase.auth().onAuthStateChanged((response) => {
       if (response) {
         console.log(response);
@@ -44,22 +47,32 @@ export default function App() {
             const user = querySnap.val();
             //console.log(user);
             setUser({user, uid});
+            setLoading(false);
             //navigation.navigate('Home');
           })
           .catch((error) => {
             alert(error);
           });
       } else {
-        setLoading(true);
+        setLoading(false);
       }
     });
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      let array = [];
+      for (const [key, value] of Object.entries(user.user.cart)) {
+        array.push(value);
+      }
+      setCart(array);
+    }
+  }, [user]);
   const createProductStack = () => (
     <Stack.Navigator>
       <Stack.Screen
         name="Products"
-        initialParams={{user}}
+        initialParams={{user, loading, setLoading}}
         component={Products}
       />
       <Stack.Screen name="Product Page" component={ProductPage} />
@@ -69,8 +82,8 @@ export default function App() {
   if (loading) {
     return (
       <>
-        <View style={{alignItems: 'center', flex: 1}}>
-          <Text>Loading...</Text>
+        <View style={{flex: 1}}>
+          <Text>Loading</Text>
         </View>
       </>
     );
@@ -82,13 +95,13 @@ export default function App() {
             <Drawer.Navigator initialRouteName="Login">
               <Drawer.Screen
                 name="Home"
-                initialParams={{user}}
+                initialParams={{user, loading, setLoading}}
                 component={Home}
               />
               <Drawer.Screen name="Products" children={createProductStack} />
               <Drawer.Screen
                 name="Cart"
-                initialParams={{user}}
+                initialParams={{user, cart, loading, setLoading}}
                 component={Cart}
               />
             </Drawer.Navigator>
@@ -97,7 +110,7 @@ export default function App() {
               <Stack.Screen
                 name="Login"
                 component={LoginScreen}
-                initialParams={{setUser, user}}
+                initialParams={{setUser, user, loading, setLoading}}
               />
             </Stack.Navigator>
           )}

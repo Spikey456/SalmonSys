@@ -13,6 +13,7 @@ import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../components/firebase';
 import Items from '../components/Items';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const Products = ({route}) => {
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -59,9 +60,14 @@ const Products = ({route}) => {
   }, [products]);
   if (loadingProducts) {
     return (
-      <>
-        <Text>Loading....</Text>
-      </>
+      <View>
+        <Spinner
+          visible={loadingProducts}
+          textContent={'Loading...'}
+          textStyle={{color: '#FFF'}}
+        />
+        <Text>Loading</Text>
+      </View>
     );
   } else {
     /*<Text>Products</Text>
