@@ -12,14 +12,17 @@ import {
 } from 'react-native';
 import {firebase} from '../components/firebase';
 
-const Items = ({product, user}) => {
+const Items = ({product, user, setLoadingProducts}) => {
   const [quantity, setQuantity] = useState(1);
   const imgDefault =
     'https://img2.pngio.com/documentation-screenshotlayer-api-default-png-250_250.png';
 
   const addToCart = () => {
     if (quantity > 0) {
+      setLoadingProducts(true);
       let cart = {};
+      let products = {};
+      //let subtotal = {};
       cart[product.id] = product;
       cart[product.id].quantity = quantity;
       console.log(cart);
@@ -32,11 +35,67 @@ const Items = ({product, user}) => {
           quantity: quantity,
         })
         .then(() => {
-          console.log('Added to cart');
+          products[product.id] = product;
+          let subtotals = {};
+          subtotals.subtotalReseller = product.resellerPrice * quantity;
+          subtotals.subtotalWholeSaler = product.wholeSalePrice * quantity;
+          subtotals.subtotalShopPrice = product.shopPrice * quantity;
+          firebase
+            .database()
+            .ref(`customers/${user.uid}/checkout/products`)
+            .child(product.id)
+            .set({
+              product,
+              subtotals,
+            })
+            .then(() => {
+              //console.log('Added to cart');
+              firebase
+                .database()
+                .ref(`customers/${user.uid}/checkout/products`)
+                .once('value')
+                .then((snap) => {
+                  let subtotals = {};
+                  let fields = snap.val();
+                  subtotals.subtotalReseller = 0;
+                  subtotals.subtotalWholeSaler = 0;
+                  subtotals.subtotalShopPrice = 0;
+                  console.log(snap.val());
+                  for (const [key, value] of Object.entries(snap.val())) {
+                    
+                    subtotals.subtotalReseller =
+                      Number(value.subtotals.subtotalReseller) +
+                      subtotals.subtotalReseller;
+                    subtotals.subtotalWholeSaler =
+                      Number(value.subtotals.subtotalWholeSaler) +
+                      subtotals.subtotalWholeSaler;
+                    subtotals.subtotalShopPrice =
+                      Number(value.subtotals.subtotalShopPrice) +
+                      subtotals.subtotalShopPrice;
+                  }
+                  console.log('ESTIMATED');
+                  console.log(subtotals);
+                  firebase
+                    .database()
+                    .ref(`customers/${user.uid}/checkout`)
+                    .set({
+                      products: fields,
+                      subtotals: subtotals,
+                    })
+                    .then(() => {
+                      console.log('Added to Cart');
+                      setLoadingProducts(false);
+                    })
+                    .catch((err) => {
+                      console.log('there is an Error: ' + err);
+                    });
+                });
+            });
         })
         .catch((err) => {
           console.log(err);
         });
+      //console.log('Added to cart');
     }
   };
 

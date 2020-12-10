@@ -68,6 +68,17 @@ export default function App() {
       setCart(array);
     }
   }, [user]);
+
+  const createCheckoutStack = () => (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="Checkout"
+        initialParams={{user}}
+        
+      />
+    </Stack.Navigator>
+  )
+
   const createProductStack = () => (
     <Stack.Navigator>
       <Stack.Screen

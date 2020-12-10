@@ -78,6 +78,12 @@ const Products = ({route}) => {
         </TouchableOpacity> */
     return (
       <View>
+        <Spinner
+          visible={loadingProducts}
+          textContent={'Loading...'}
+          textStyle={{color: '#FFF'}}
+        />
+
         <FlatList
           data={products}
           extraData={!loadingProducts}
@@ -88,7 +94,11 @@ const Products = ({route}) => {
             return item.map((product) => {
               console.log(product.name);
               return product.isPublished ? (
-                <Items product={product} user={route.params.user} />
+                <Items
+                  product={product}
+                  setLoadingProducts={setLoadingProducts}
+                  user={route.params.user}
+                />
               ) : null;
 
               /*<Card style={styles.cardRow} key={product.id}>
