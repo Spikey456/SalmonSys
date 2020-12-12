@@ -18,6 +18,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import Home from './pages/Home';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout/Checkout';
+import PickupDate from './pages/Checkout/PickupDate';
 import LoginScreen from './pages/LoginScreen/LoginScreen';
 import Products from './pages/Products';
 import ProductPage from './pages/ProductPage';
@@ -71,13 +73,23 @@ export default function App() {
 
   const createCheckoutStack = () => (
     <Stack.Navigator>
+      <Stack.Screen
+        name="Cart"
+        initialParams={{user, cart, loading, setLoading}}
+        component={Cart}
+      />
+      <Stack.Screen
+        name="Checkout(Pickup Date)"
+        initialParams={{user, loading, setLoading}}
+        component={PickupDate}
+      />
       <Stack.Screen 
-        name="Checkout"
-        initialParams={{user}}
-        
+        name="Finalize Checkout"
+        initialParams={{user, loading, setLoading}}
+        component={Checkout}
       />
     </Stack.Navigator>
-  )
+  );
 
   const createProductStack = () => (
     <Stack.Navigator>
@@ -110,11 +122,7 @@ export default function App() {
                 component={Home}
               />
               <Drawer.Screen name="Products" children={createProductStack} />
-              <Drawer.Screen
-                name="Cart"
-                initialParams={{user, cart, loading, setLoading}}
-                component={Cart}
-              />
+              <Drawer.Screen name="Cart" component={createCheckoutStack} />
             </Drawer.Navigator>
           ) : (
             <Stack.Navigator>

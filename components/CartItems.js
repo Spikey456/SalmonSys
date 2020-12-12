@@ -14,8 +14,63 @@ import {firebase} from '../components/firebase';
 
 const CartItems = ({cartItem, user, loading, setLoading}) => {
   const [quantity, setQuantity] = useState(cartItem.quantity);
+  const [price, setPrice] = useState(
+    user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
+      ? cartItem.quantity >= 15
+        ? cartItem.product.resellerPrice
+        : cartItem.product.shopPrice
+      : cartItem.quantity >= 30
+      ? cartItem.product.wholeSalePrice
+      : cartItem.product.resellerPrice,
+  );
+  const [priceType, setPriceType] = useState(
+    user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
+      ? cartItem.quantity >= 15
+        ? 'Reseller Price'
+        : 'Shop Price'
+      : cartItem.quantity >= 30
+      ? 'Wholesale Price'
+      : 'Reseller Price',
+  );
   const imgDefault =
     'https://img2.pngio.com/documentation-screenshotlayer-api-default-png-250_250.png';
+
+  const identifyUserType = (type, quantity) => {
+    console.log('Updating price');
+    if (type === 'USER') {
+      if (user.user.role === '-MM7epSByKyZ4VVVPBYK') {
+        if (quantity > 14) {
+          console.log('Setting to Reseller Price');
+          return 'Reseller Price';
+        } else {
+          console.log('Setting to Shop Price');
+          return 'Shop Price';
+        }
+      } else {
+        if (quantity >= 30) {
+          console.log('Setting to Wholesale Price');
+          return 'Wholesale Price';
+        } else {
+          console.log('Setting to Reseller Price');
+          return 'Reseller Price';
+        }
+      }
+    } else {
+      if (user.user.role === '-MM7epSByKyZ4VVVPBYK') {
+        if (quantity >= 15) {
+          return cartItem.product.resellerPrice;
+        } else {
+          return cartItem.product.shopPrice;
+        }
+      } else {
+        if (quantity >= 30) {
+          return cartItem.product.wholeSalePrice;
+        } else {
+          return cartItem.product.resellerPrice;
+        }
+      }
+    }
+  };
 
   const updateQuantity = (id, num) => {
     firebase
@@ -23,10 +78,29 @@ const CartItems = ({cartItem, user, loading, setLoading}) => {
       .ref(`customers/${user.uid}/cart/${id}`)
       .update({quantity: num})
       .then(() => {
-        setLoading(false);
-        console.log('Quantity Updated');
+        firebase
+          .database()
+          .ref(`customers/${user.uid}/cart/${id}/product`)
+          .update({quantity: num})
+          .then(() => {
+            firebase
+              .database()
+              .ref(`customers/${user.uid}/checkout/products/${id}/product`)
+              .update({quantity: num})
+              .then(() => {
+                setLoading(false);
+                console.log('Quantity Updated');
+                setPriceType(identifyUserType('USER', num));
+                setPrice(identifyUserType('PRICE', num));
+                console.log(identifyUserType('USER', num));
+              });
+          });
       });
   };
+
+  useEffect(() => {
+    console.log(priceType);
+  }, [priceType]);
   /*return (
     <Card style={styles.cardRow} key={cartItem.product.id}>
       <Card.Content>
@@ -94,10 +168,9 @@ const CartItems = ({cartItem, user, loading, setLoading}) => {
             <Title>{cartItem.product.name}</Title>
             <Title style={{color: '#ff7334'}}>
               PHP
-              {user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
-                ? cartItem.product.resellerPrice
-                : cartItem.product.wholeSalePrice}
+              {price}
             </Title>
+            <Text>{priceType}</Text>
           </View>
         </View>
       </Card.Content>

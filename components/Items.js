@@ -62,7 +62,6 @@ const Items = ({product, user, setLoadingProducts}) => {
                   subtotals.subtotalShopPrice = 0;
                   console.log(snap.val());
                   for (const [key, value] of Object.entries(snap.val())) {
-                    
                     subtotals.subtotalReseller =
                       Number(value.subtotals.subtotalReseller) +
                       subtotals.subtotalReseller;
