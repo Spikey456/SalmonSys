@@ -4,6 +4,7 @@ import InputSpinner from 'react-native-input-spinner';
 import {Card, Title} from 'react-native-paper';
 import {
   View,
+  Modal,
   Image,
   Text,
   StyleSheet,
@@ -12,7 +13,7 @@ import {
 } from 'react-native';
 import {firebase} from '../components/firebase';
 
-const Items = ({product, user, setLoadingProducts}) => {
+const Items = ({product, user, setLoadingProducts, setShowModal}) => {
   const [quantity, setQuantity] = useState(1);
   const imgDefault =
     'https://img2.pngio.com/documentation-screenshotlayer-api-default-png-250_250.png';
@@ -83,6 +84,7 @@ const Items = ({product, user, setLoadingProducts}) => {
                     })
                     .then(() => {
                       console.log('Added to Cart');
+                      setShowModal(true);
                       setLoadingProducts(false);
                     })
                     .catch((err) => {

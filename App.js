@@ -8,7 +8,7 @@
  */
 import 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Image} from 'react-native';
 import {firebase} from './components/firebase';
 import Header from './components/Header';
 import {NavigationContainer} from '@react-navigation/native';
@@ -17,6 +17,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import Home from './pages/Home';
+import AddressDetails from './pages/Checkout/AddressDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import PickupDate from './pages/Checkout/PickupDate';
@@ -83,7 +84,12 @@ export default function App() {
         initialParams={{user, loading, setLoading}}
         component={PickupDate}
       />
-      <Stack.Screen 
+      <Stack.Screen
+        name="Checkout(Address)"
+        initialParams={{user, loading, setLoading}}
+        component={AddressDetails}
+      />
+      <Stack.Screen
         name="Finalize Checkout"
         initialParams={{user, loading, setLoading}}
         component={Checkout}
@@ -118,11 +124,41 @@ export default function App() {
             <Drawer.Navigator initialRouteName="Login">
               <Drawer.Screen
                 name="Home"
+                options={{
+                  drawerIcon: ({focused, size}) => (
+                    <Image
+                      source={require('./assets/home.png')}
+                      style={{height: size, width: size}}
+                    />
+                  ),
+                }}
                 initialParams={{user, loading, setLoading}}
                 component={Home}
               />
-              <Drawer.Screen name="Products" children={createProductStack} />
-              <Drawer.Screen name="Cart" component={createCheckoutStack} />
+              <Drawer.Screen
+                name="Products"
+                options={{
+                  drawerIcon: ({focused, size}) => (
+                    <Image
+                      source={require('./assets/fish.png')}
+                      style={{height: size, width: size}}
+                    />
+                  ),
+                }}
+                children={createProductStack}
+              />
+              <Drawer.Screen
+                name="Cart"
+                options={{
+                  drawerIcon: ({focused, size}) => (
+                    <Image
+                      source={require('./assets/cart.png')}
+                      style={{height: size, width: size}}
+                    />
+                  ),
+                }}
+                component={createCheckoutStack}
+              />
             </Drawer.Navigator>
           ) : (
             <Stack.Navigator>

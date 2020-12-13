@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {Card, Title} from 'react-native-paper';
@@ -53,7 +54,9 @@ user*/
       .then(() => {
         console.log('Pickup date set!');
         if (route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK') {
-          navigation.navigate('Finalize Checkout');
+          navigation.navigate('Checkout(Address)');
+        } else {
+          navigation.navigate('Checkout(Address)');
         }
       });
   };
@@ -107,7 +110,7 @@ user*/
               marginLeft: 'auto',
               marginRight: 'auto',
               marginTop: 20,
-              height: 50,
+              height: 40,
               borderRadius: 5,
               alignItems: 'center',
               justifyContent: 'center',

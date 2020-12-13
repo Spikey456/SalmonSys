@@ -11,13 +11,16 @@ import 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {Modal, Button} from 'react-native-paper';
 import {firebase} from '../components/firebase';
 import Items from '../components/Items';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
-const Products = ({route}) => {
+const Products = ({navigation, route}) => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [products, setProducts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [] = useState(0);
 
   const loadProducts = () => {
@@ -58,7 +61,7 @@ const Products = ({route}) => {
       }, 500);
     }
   }, [products]);
-  if (loadingProducts) {
+  if (loadingProducts && products.length === 0) {
     return (
       <View>
         <Spinner
@@ -77,31 +80,33 @@ const Products = ({route}) => {
           <Text style={styles.btnText}> Go to Product Page</Text>
         </TouchableOpacity> */
     return (
-      <View>
-        <Spinner
-          visible={loadingProducts}
-          textContent={'Loading...'}
-          textStyle={{color: '#FFF'}}
-        />
+      <>
+        <View>
+          <Spinner
+            visible={loadingProducts}
+            textContent={'Loading...'}
+            textStyle={{color: '#FFF'}}
+          />
 
-        <FlatList
-          data={products}
-          extraData={!loadingProducts}
-          renderItem={({item}) => {
-            //console.log('ITEM!');
+          <FlatList
+            data={products}
+            extraData={!loadingProducts}
+            renderItem={({item}) => {
+              //console.log('ITEM!');
 
-            //console.log(item);
-            return item.map((product) => {
-              console.log(product.name);
-              return product.isPublished ? (
-                <Items
-                  product={product}
-                  setLoadingProducts={setLoadingProducts}
-                  user={route.params.user}
-                />
-              ) : null;
+              //console.log(item);
+              return item.map((product) => {
+                console.log(product.name);
+                return product.isPublished ? (
+                  <Items
+                    product={product}
+                    setShowModal={setShowModal}
+                    setLoadingProducts={setLoadingProducts}
+                    user={route.params.user}
+                  />
+                ) : null;
 
-              /*<Card style={styles.cardRow} key={product.id}>
+                /*<Card style={styles.cardRow} key={product.id}>
                   <Card.Content>
                     <View
                       style={{
@@ -157,13 +162,97 @@ const Products = ({route}) => {
                     </View>
                   </Card.Actions>
                 </Card>*/
-            });
-          }}
-          keyExtractor={(item) => {
-            return item.id;
-          }}
-        />
-      </View>
+              });
+            }}
+            keyExtractor={(item) => {
+              return item.id;
+            }}
+          />
+
+          <Button
+            onPress={() => {
+              setShowModal(true);
+            }}>
+            <Text>Test</Text>
+          </Button>
+          <Button
+            onPress={() => {
+              navigation.navigate('Cart');
+              console.log('Go to cart');
+            }}>
+            View Cart
+          </Button>
+        </View>
+        <Modal
+          visible={showModal}
+          onDismiss={() => {
+            setShowModal(false);
+          }}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                width: 300,
+                backgroundColor: '#fff',
+                height: 200,
+                borderRadius: 20,
+              }}>
+              <View
+                style={{
+                  marginTop: 20,
+                  flex: 1,
+                  flexDirection: 'column',
+                  justifyContent: 'space-evenly',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 20,
+                    padding: 15,
+                    color: '#000',
+                  }}>
+                  Added to cart successfully!
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#ff7334',
+                    height: 50,
+                    borderRadius: 5,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onPress={() => {
+                    navigation.navigate('Cart');
+                    console.log('Go to cart');
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 16,
+                      paddingLeft: 10,
+                      paddingRight: 10,
+                      fontWeight: 'bold',
+                    }}>
+                    View Cart
+                  </Text>
+                </TouchableOpacity>
+                <Button
+                  onPress={() => {
+                    setShowModal(false);
+                  }}>
+                  Close
+                </Button>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </>
     );
   }
 };
