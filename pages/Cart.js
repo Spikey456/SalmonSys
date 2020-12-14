@@ -29,12 +29,18 @@ const Cart = ({navigation, route}) => {
       .ref(`customers/${route.params.user.uid}/cart`)
       .once('value')
       .then((snap) => {
-        for (const [key, value] of Object.entries(snap.val())) {
-          array.push(value);
+        if (snap) {
+          for (const [key, value] of Object.entries(snap.val())) {
+            array.push(value);
+          }
+
+          setRefresh(false);
+          setCartItems([array]);
+        } else {
+          setRefresh(false);
+          setLoadingCart(false);
         }
 
-        setRefresh(false);
-        setCartItems([array]);
         //console.log('Henlooo');
         //console.log(snap.val());
       })
@@ -62,30 +68,38 @@ const Cart = ({navigation, route}) => {
         setTimeout(function () {
           setLoadingCart(false);
         }, 500);
+      } else {
+        setLoadingCart(false);
       }
     }
   }, [cartItems]);
 
-  if (cartItems.length === 0 || refresh) {
-    return (
-      <View>
-        <Spinner
-          visible={loadingCart}
-          textContent={'Loading...'}
-          textStyle={{color: '#FFF'}}
-        />
-        <Text>No items in cart</Text>
-      </View>
-    );
-  } else {
-    //return <Text>Display Cart</Text>
-    return (
-      <View>
-        <Spinner
-          visible={loadingCart}
-          textContent={'Loading...'}
-          textStyle={{color: '#FFF'}}
-        />
+  //return <Text>Display Cart</Text>
+  return (
+    <View>
+      <Spinner
+        visible={loadingCart}
+        textContent={'Loading...'}
+        textStyle={{color: '#FFF'}}
+      />
+      {cartItems.length === 0 ? (
+        <View
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#ff7334',
+              marginTop: 30,
+            }}>
+            No items in cart
+          </Text>
+        </View>
+      ) : (
         <FlatList
           data={cartItems}
           extraData={refresh || loadingCart}
@@ -102,6 +116,7 @@ const Cart = ({navigation, route}) => {
                 <CartItems
                   key={cart.id}
                   cartItem={cart}
+                  setRefresh={setRefresh}
                   loading={loadingCart}
                   setLoading={setLoadingCart}
                   user={route.params.user}
@@ -117,70 +132,75 @@ const Cart = ({navigation, route}) => {
               />
             );*/
           }}
+          refreshing={refresh}
+          onRefresh={() => {
+            setCartItems([]), setLoadingCart(true), refreshCart();
+          }}
         />
-        <TouchableOpacity
+      )}
+      <TouchableOpacity
+        style={{
+          backgroundColor: cartItems.length === 0 ? 'grey' : '#ff7334',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          marginTop: 20,
+          height: 50,
+          borderRadius: 5,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        disabled={cartItems.length === 0}
+        onPress={() => {
+          //addToCart();
+          //updateQuantity(cartItem.id);
+          console.log('Proceed to checkout');
+          navigation.navigate('Checkout(Pickup Date)');
+        }}>
+        <Text
           style={{
-            backgroundColor: '#ff7334',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginTop: 20,
-            height: 50,
-            borderRadius: 5,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onPress={() => {
-            //addToCart();
-            //updateQuantity(cartItem.id);
-            console.log('Proceed to checkout');
-            navigation.navigate('Checkout(Pickup Date)');
+            color: 'white',
+            fontSize: 16,
+            paddingLeft: 10,
+            paddingRight: 10,
+            fontWeight: 'bold',
           }}>
-          <Text
-            style={{
-              color: 'white',
-              fontSize: 16,
-              paddingLeft: 10,
-              paddingRight: 10,
-              fontWeight: 'bold',
-            }}>
-            Checkout
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          Checkout
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#124a04',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          marginTop: 10,
+          height: 50,
+          borderRadius: 5,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onPress={() => {
+          //addToCart();
+          //updateQuantity(cartItem.id);
+          setCartItems([]);
+          setRefresh(true);
+          setLoadingCart(true);
+          setTimeout(function () {
+            refreshCart();
+          }, 500);
+        }}>
+        <Text
           style={{
-            backgroundColor: '#124a04',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginTop: 10,
-            height: 50,
-            borderRadius: 5,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onPress={() => {
-            //addToCart();
-            //updateQuantity(cartItem.id);
-            setCartItems([]);
-            setRefresh(true);
-            setLoadingCart(true);
-            setTimeout(function () {
-              refreshCart();
-            }, 500);
+            color: 'white',
+            fontSize: 16,
+            paddingLeft: 10,
+            paddingRight: 10,
+            fontWeight: 'bold',
           }}>
-          <Text
-            style={{
-              color: 'white',
-              fontSize: 16,
-              paddingLeft: 10,
-              paddingRight: 10,
-              fontWeight: 'bold',
-            }}>
-            Refresh
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+          Refresh
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 export default Cart;

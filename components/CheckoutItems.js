@@ -72,8 +72,6 @@ const CheckoutItems = ({cartItem, user}) => {
     }
   };
 
-  
-
   useEffect(() => {
     console.log(priceType);
   }, [priceType]);
@@ -120,7 +118,8 @@ const CheckoutItems = ({cartItem, user}) => {
           style={{
             flex: 1,
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            alignContent: 'center',
           }}>
           <Image
             source={{
@@ -144,7 +143,6 @@ const CheckoutItems = ({cartItem, user}) => {
             }}>
             <Title>{cartItem.product.name}</Title>
             <Title>x{cartItem.product.quantity}</Title>
-            
           </View>
           <View
             style={{
@@ -161,7 +159,6 @@ const CheckoutItems = ({cartItem, user}) => {
           </View>
         </View>
       </Card.Content>
-      
     </Card>
   );
 };

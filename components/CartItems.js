@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {firebase} from '../components/firebase';
 
-const CartItems = ({cartItem, user, loading, setLoading}) => {
+const CartItems = ({cartItem, user, loading, setLoading, setRefresh}) => {
   const [quantity, setQuantity] = useState(cartItem.quantity);
   const [price, setPrice] = useState(
     user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
@@ -73,27 +73,49 @@ const CartItems = ({cartItem, user, loading, setLoading}) => {
   };
 
   const updateQuantity = (id, num) => {
+    if (num === 0) {
+      removeProduct(id);
+    } else {
+      firebase
+        .database()
+        .ref(`customers/${user.uid}/cart/${id}`)
+        .update({quantity: num})
+        .then(() => {
+          firebase
+            .database()
+            .ref(`customers/${user.uid}/cart/${id}/product`)
+            .update({quantity: num})
+            .then(() => {
+              firebase
+                .database()
+                .ref(`customers/${user.uid}/checkout/products/${id}/product`)
+                .update({quantity: num})
+                .then(() => {
+                  setLoading(false);
+                  console.log('Quantity Updated');
+                  setPriceType(identifyUserType('USER', num));
+                  setPrice(identifyUserType('PRICE', num));
+                  console.log(identifyUserType('USER', num));
+                });
+            });
+        });
+    }
+  };
+
+  const removeProduct = (id) => {
+    setLoading(true);
     firebase
       .database()
       .ref(`customers/${user.uid}/cart/${id}`)
-      .update({quantity: num})
+      .remove()
       .then(() => {
         firebase
           .database()
-          .ref(`customers/${user.uid}/cart/${id}/product`)
-          .update({quantity: num})
+          .ref(`customers/${user.uid}/checkout/products/${id}`)
+          .remove()
           .then(() => {
-            firebase
-              .database()
-              .ref(`customers/${user.uid}/checkout/products/${id}/product`)
-              .update({quantity: num})
-              .then(() => {
-                setLoading(false);
-                console.log('Quantity Updated');
-                setPriceType(identifyUserType('USER', num));
-                setPrice(identifyUserType('PRICE', num));
-                console.log(identifyUserType('USER', num));
-              });
+            setRefresh(true);
+            setLoading(false);
           });
       });
   };
@@ -186,6 +208,7 @@ const CartItems = ({cartItem, user, loading, setLoading}) => {
             onPress={() => {
               //addToCart();
               //updateQuantity(cartItem.product.id);
+              removeProduct(cartItem.product.id);
             }}>
             <Text style={styles.buttonTitle}>Remove</Text>
           </TouchableOpacity>

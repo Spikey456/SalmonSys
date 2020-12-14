@@ -21,27 +21,32 @@ const Products = ({navigation, route}) => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [] = useState(0);
 
   const loadProducts = () => {
     setProducts([]);
     let array = [];
-    firebase
-      .database()
-      .ref('products')
-      .once('value')
-      .then((snap) => {
-        //console.log(snap.val());
-        for (const [key, value] of Object.entries(snap.val())) {
-          value.id = key;
-          //console.log(value);
-          array.push(value);
-        }
-        // console.log(array);
-        setProducts([...products, array]);
-        //console.log(products);
-        //console.log('Array set!');
-      });
+    setTimeout(function () {
+      firebase
+        .database()
+        .ref('products')
+        .once('value')
+        .then((snap) => {
+          //console.log(snap.val());
+          for (const [key, value] of Object.entries(snap.val())) {
+            value.id = key;
+            //console.log(value);
+            array.push(value);
+          }
+          // console.log(array);
+          setProducts([array]);
+          setRefreshing(false);
+          //console.log(products);
+          //console.log('Array set!');
+        });
+    }, 1000);
+
     //console.log('Firebase Exit');
   };
 
@@ -61,36 +66,25 @@ const Products = ({navigation, route}) => {
       }, 500);
     }
   }, [products]);
-  if (loadingProducts && products.length === 0) {
-    return (
+
+  /*<Text>Products</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('Product Page')}>
+          <Text style={styles.btnText}> Go to Product Page</Text>
+        </TouchableOpacity> */
+  return (
+    <>
       <View>
         <Spinner
           visible={loadingProducts}
           textContent={'Loading...'}
           textStyle={{color: '#FFF'}}
         />
-        <Text>Loading</Text>
-      </View>
-    );
-  } else {
-    /*<Text>Products</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Product Page')}>
-          <Text style={styles.btnText}> Go to Product Page</Text>
-        </TouchableOpacity> */
-    return (
-      <>
-        <View>
-          <Spinner
-            visible={loadingProducts}
-            textContent={'Loading...'}
-            textStyle={{color: '#FFF'}}
-          />
-
+        {!loadingProducts && products.length !== 0 && (
           <FlatList
             data={products}
-            extraData={!loadingProducts}
+            extraData={!loadingProducts || refreshing}
             renderItem={({item}) => {
               //console.log('ITEM!');
 
@@ -99,6 +93,7 @@ const Products = ({navigation, route}) => {
                 console.log(product.name);
                 return product.isPublished ? (
                   <Items
+                    key={product.id}
                     product={product}
                     setShowModal={setShowModal}
                     setLoadingProducts={setLoadingProducts}
@@ -167,94 +162,100 @@ const Products = ({navigation, route}) => {
             keyExtractor={(item) => {
               return item.id;
             }}
+            refreshing={refreshing}
+            onRefresh={() => {
+              setProducts([]), setLoadingProducts(true), loadProducts();
+            }}
           />
+        )}
+        {/**
+        <Button
+          onPress={() => {
+            setShowModal(true);
+          }}>
+          <Text>Test</Text>
+        </Button>
+        <Button
+          onPress={() => {
+            navigation.navigate('Cart');
+            console.log('Go to cart');
+          }}>
+          View Cart
+        </Button>
+        */}
+      </View>
 
-          <Button
-            onPress={() => {
-              setShowModal(true);
-            }}>
-            <Text>Test</Text>
-          </Button>
-          <Button
-            onPress={() => {
-              navigation.navigate('Cart');
-              console.log('Go to cart');
-            }}>
-            View Cart
-          </Button>
-        </View>
-        <Modal
-          visible={showModal}
-          onDismiss={() => {
-            setShowModal(false);
+      <Modal
+        visible={showModal}
+        onDismiss={() => {
+          setShowModal(false);
+        }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
           <View
             style={{
-              flex: 1,
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+              width: 300,
+              backgroundColor: '#fff',
+              height: 200,
+              borderRadius: 20,
             }}>
             <View
               style={{
-                width: 300,
-                backgroundColor: '#fff',
-                height: 200,
-                borderRadius: 20,
+                marginTop: 20,
+                flex: 1,
+                flexDirection: 'column',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
               }}>
-              <View
+              <Text
                 style={{
-                  marginTop: 20,
-                  flex: 1,
-                  flexDirection: 'column',
-                  justifyContent: 'space-evenly',
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  padding: 15,
+                  color: '#000',
+                }}>
+                Added to cart successfully!
+              </Text>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#ff7334',
+                  height: 50,
+                  borderRadius: 5,
                   alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => {
+                  navigation.navigate('Cart');
+                  console.log('Go to cart');
                 }}>
                 <Text
                   style={{
+                    color: 'white',
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    paddingRight: 10,
                     fontWeight: 'bold',
-                    fontSize: 20,
-                    padding: 15,
-                    color: '#000',
                   }}>
-                  Added to cart successfully!
+                  View Cart
                 </Text>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#ff7334',
-                    height: 50,
-                    borderRadius: 5,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  onPress={() => {
-                    navigation.navigate('Cart');
-                    console.log('Go to cart');
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 16,
-                      paddingLeft: 10,
-                      paddingRight: 10,
-                      fontWeight: 'bold',
-                    }}>
-                    View Cart
-                  </Text>
-                </TouchableOpacity>
-                <Button
-                  onPress={() => {
-                    setShowModal(false);
-                  }}>
-                  Close
-                </Button>
-              </View>
+              </TouchableOpacity>
+              <Button
+                onPress={() => {
+                  setShowModal(false);
+                }}>
+                Close
+              </Button>
             </View>
           </View>
-        </Modal>
-      </>
-    );
-  }
+        </View>
+      </Modal>
+    </>
+  );
 };
 
 export default Products;

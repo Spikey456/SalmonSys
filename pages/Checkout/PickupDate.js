@@ -54,7 +54,7 @@ user*/
       .then(() => {
         console.log('Pickup date set!');
         if (route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK') {
-          navigation.navigate('Checkout(Address)');
+          navigation.navigate('Finalize Checkout');
         } else {
           navigation.navigate('Checkout(Address)');
         }
@@ -70,7 +70,8 @@ user*/
   }, [userCheckout]);
 
   return (
-    <View style={{flex: 1, justifyContent: 'center'}}>
+    <View
+      style={{flex: 1, justifyContent: 'flex-start', alignContent: 'center'}}>
       <Spinner
         visible={loadingCheckout}
         textContent={'Loading...'}

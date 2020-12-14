@@ -17,6 +17,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import Home from './pages/Home';
+import About from './pages/About';
 import AddressDetails from './pages/Checkout/AddressDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout/Checkout';
@@ -65,10 +66,12 @@ export default function App() {
   useEffect(() => {
     if (user) {
       let array = [];
-      for (const [key, value] of Object.entries(user.user.cart)) {
-        array.push(value);
+      if (user.user.cart) {
+        for (const [key, value] of Object.entries(user.user.cart)) {
+          array.push(value);
+        }
+        setCart(array);
       }
-      setCart(array);
     }
   }, [user]);
 
@@ -157,7 +160,19 @@ export default function App() {
                     />
                   ),
                 }}
-                component={createCheckoutStack}
+                children={createCheckoutStack}
+              />
+              <Drawer.Screen
+                name="About"
+                options={{
+                  drawerIcon: ({focused, size}) => (
+                    <Image
+                      source={require('./assets/about.png')}
+                      style={{height: size, width: size}}
+                    />
+                  ),
+                }}
+                component={About}
               />
             </Drawer.Navigator>
           ) : (
