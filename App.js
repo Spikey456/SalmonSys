@@ -12,7 +12,12 @@ import {View, Text, Image} from 'react-native';
 import {firebase} from './components/firebase';
 import Header from './components/Header';
 import {NavigationContainer} from '@react-navigation/native';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItem,
+  DrawerItemList,
+} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
 import Spinner from 'react-native-loading-spinner-overlay';
 
@@ -22,6 +27,7 @@ import AddressDetails from './pages/Checkout/AddressDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import PickupDate from './pages/Checkout/PickupDate';
+import OrdersList from './pages/Orders/OrdersList';
 import LoginScreen from './pages/LoginScreen/LoginScreen';
 import Products from './pages/Products';
 import ProductPage from './pages/ProductPage';
@@ -100,6 +106,21 @@ export default function App() {
     </Stack.Navigator>
   );
 
+  const logOutUser = () => {
+    setLoading(true);
+    firebase
+      .auth()
+      .signOut()
+      .then(function () {
+        console.log('Logging out...');
+        setLoading(false);
+        setUser(null);
+      })
+      .catch(function (error) {
+        // An error happened.
+      });
+  };
+
   const createProductStack = () => (
     <Stack.Navigator>
       <Stack.Screen
@@ -115,7 +136,11 @@ export default function App() {
     return (
       <>
         <View style={{flex: 1}}>
-          <Text>Loading</Text>
+          <Spinner
+            visible={loading}
+            textContent={'Loading...'}
+            textStyle={{color: '#FFF'}}
+          />
         </View>
       </>
     );
@@ -124,57 +149,129 @@ export default function App() {
       <>
         <NavigationContainer>
           {user ? (
-            <Drawer.Navigator initialRouteName="Login">
-              <Drawer.Screen
-                name="Home"
-                options={{
-                  drawerIcon: ({focused, size}) => (
-                    <Image
-                      source={require('./assets/home.png')}
-                      style={{height: size, width: size}}
-                    />
-                  ),
-                }}
-                initialParams={{user, loading, setLoading}}
-                component={Home}
+            <>
+              <Spinner
+                visible={loading}
+                textContent={'Loading...'}
+                textStyle={{color: '#FFF'}}
               />
-              <Drawer.Screen
-                name="Products"
-                options={{
-                  drawerIcon: ({focused, size}) => (
-                    <Image
-                      source={require('./assets/fish.png')}
-                      style={{height: size, width: size}}
-                    />
-                  ),
-                }}
-                children={createProductStack}
-              />
-              <Drawer.Screen
-                name="Cart"
-                options={{
-                  drawerIcon: ({focused, size}) => (
-                    <Image
-                      source={require('./assets/cart.png')}
-                      style={{height: size, width: size}}
-                    />
-                  ),
-                }}
-                children={createCheckoutStack}
-              />
-              <Drawer.Screen
-                name="About"
-                options={{
-                  drawerIcon: ({focused, size}) => (
-                    <Image
-                      source={require('./assets/about.png')}
-                      style={{height: size, width: size}}
-                    />
-                  ),
-                }}
-                component={About}
-              />
-            </Drawer.Navigator>
+              <Drawer.Navigator
+                initialRouteName="Login"
+                drawerContent={(props) => {
+                  return (
+                    <DrawerContentScrollView {...props}>
+                      <View
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginBottom: 15,
+                        }}>
+                        <Image
+                          style={{
+                            height: 120,
+                            width: 90,
+                            alignSelf: 'center',
+                            justifyContent: 'flex-start',
+                          }}
+                          source={require('./assets/icon.png')}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                            color: 'black',
+                          }}>
+                          {user.user.name}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                            color: '#ff7334',
+                          }}>
+                          {user.user.role === '-MM7epSByKyZ4VVVPBYK'
+                            ? 'Reseller'
+                            : 'Wholesaler'}
+                        </Text>
+                      </View>
+                      <DrawerItemList {...props} />
+                      <DrawerItem
+                        label="Logout"
+                        icon={({focused, size}) => (
+                          <Image
+                            source={require('./assets/logout.png')}
+                            style={{height: size, width: size}}
+                          />
+                        )}
+                        onPress={logOutUser}
+                      />
+                    </DrawerContentScrollView>
+                  );
+                }}>
+                <Drawer.Screen
+                  name="Home"
+                  options={{
+                    drawerIcon: ({focused, size}) => (
+                      <Image
+                        source={require('./assets/home.png')}
+                        style={{height: size, width: size}}
+                      />
+                    ),
+                  }}
+                  initialParams={{user, loading, setLoading}}
+                  component={Home}
+                />
+                <Drawer.Screen
+                  name="Products"
+                  options={{
+                    drawerIcon: ({focused, size}) => (
+                      <Image
+                        source={require('./assets/fish.png')}
+                        style={{height: size, width: size}}
+                      />
+                    ),
+                  }}
+                  children={createProductStack}
+                />
+                <Drawer.Screen
+                  name="Cart"
+                  options={{
+                    drawerIcon: ({focused, size}) => (
+                      <Image
+                        source={require('./assets/cart.png')}
+                        style={{height: size, width: size}}
+                      />
+                    ),
+                  }}
+                  children={createCheckoutStack}
+                />
+                <Drawer.Screen
+                  name="Orders"
+                  options={{
+                    drawerIcon: ({focused, size}) => (
+                      <Image
+                        source={require('./assets/orders.png')}
+                        style={{height: size, width: size}}
+                      />
+                    ),
+                  }}
+                  initialParams={{user}}
+                  children={OrdersList}
+                />
+                <Drawer.Screen
+                  name="About"
+                  options={{
+                    drawerIcon: ({focused, size}) => (
+                      <Image
+                        source={require('./assets/about.png')}
+                        style={{height: size, width: size}}
+                      />
+                    ),
+                  }}
+                  component={About}
+                />
+              </Drawer.Navigator>
+            </>
           ) : (
             <Stack.Navigator>
               <Stack.Screen

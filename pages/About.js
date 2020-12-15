@@ -2,7 +2,7 @@
 import 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
 import {
-  View,
+  ScrollView,
   Text,
   StyleSheet,
   Image,
@@ -17,23 +17,24 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 const About = () => {
   return (
-    <View
-      style={{
+    <ScrollView
+
+      contentContainerStyle={{
         flex: 1,
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      }}
+      >
       <Image
         source={require('../assets/about.jpg')}
+        resizeMode='cover'
         style={{
-          width: 300,
+          width: 400,
           height: '100%',
           marginLeft: 'auto',
           marginRight: 'auto',
         }}
       />
-    </View>
+    </ScrollView>
   );
 };
 

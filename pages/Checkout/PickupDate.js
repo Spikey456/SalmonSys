@@ -20,7 +20,7 @@ const PickupDate = ({navigation, route}) => {
   const [userCheckout, setUserCheckout] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(true);
   const [date, setDate] = useState(
-    route.params.user.user.checkout.pickupDate
+    route.params.user.user.checkout
       ? route.params.user.user.checkout.pickupDate
       : moment().format('YYYY-MM-DD'),
   );

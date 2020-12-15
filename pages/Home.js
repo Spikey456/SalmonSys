@@ -12,7 +12,6 @@ import {View, Image, Text, StyleSheet, TouchableOpacity} from 'react-native';
 export default function Home({navigation, route}) {
   return (
     <View style={styles.container}>
-      <Text>Hello {route.params.user.user.name}</Text>
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('Products');
@@ -33,6 +32,34 @@ export default function Home({navigation, route}) {
         }}>
         <Image
           source={require('../assets/CartHome.jpg')}
+          style={{
+            width: 400,
+            height: 200,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('Orders');
+        }}>
+        <Image
+          source={require('../assets/OrdersHome.jpg')}
+          style={{
+            width: 400,
+            height: 200,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('About');
+        }}>
+        <Image
+          source={require('../assets/AboutUsHome.jpg')}
           style={{
             width: 400,
             height: 200,

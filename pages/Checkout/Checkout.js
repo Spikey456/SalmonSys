@@ -211,15 +211,15 @@ user*/
             console.log(index);
             console.log('Rendering Checkout Item');
             console.log(cartItem);
-            (subtotal[index] =
+            subtotal[index] =
               route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK'
                 ? cartItem.product.quantity > 15
                   ? cartItem.subtotals.subtotalReseller
                   : cartItem.subtotals.subtotalShopPrice
                 : cartItem.product.quantity > 30
                 ? cartItem.subtotals.subtotalWholeSaler
-                : cartItem.subtotals.subtotalReseller),
-              /*setSubtotal(
+                : cartItem.subtotals.subtotalReseller;
+            /*setSubtotal(
               route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK'
                 ? cartItem.product.quantity > 15
                   ? subtotal + cartItem.subtotals.subtotalReseller
@@ -228,7 +228,7 @@ user*/
                 ? subtotal + cartItem.subtotals.subtotalWholeSaler
                 : subtotal + cartItem.subtotals.subtotalReseller,
             );*/
-              console.log('carttt');
+            console.log('carttt');
             console.log(cartItem);
             return (
               <View
