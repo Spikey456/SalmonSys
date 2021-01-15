@@ -1,7 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import InputSpinner from 'react-native-input-spinner';
-import {Card, Title} from 'react-native-paper';
+import {Card, Title, Modal} from 'react-native-paper';
 import {
   View,
   Image,
@@ -12,7 +11,16 @@ import {
 } from 'react-native';
 import {firebase} from '../../components/firebase';
 
-const OrderItem = ({orderItem, user, loading, setLoading, setRefresh}) => {
+const OrderItem = ({
+  orderItem,
+  user,
+  loading,
+  setLoading,
+  setSelectProducts,
+  setShowOrder,
+  setSelectOrder,
+  setRefresh,
+}) => {
   const [date, getDate] = useState(null);
 
   function numberWithCommas(x) {
@@ -22,7 +30,7 @@ const OrderItem = ({orderItem, user, loading, setLoading, setRefresh}) => {
   useEffect(() => {
     let orderDate = new Date(orderItem.created);
     getDate(orderDate.toISOString().split('T')[0]);
-  });
+  }, []);
 
   function localizeStatus(status) {
     if (status === 'UNFULFILLED') {
@@ -45,74 +53,91 @@ const OrderItem = ({orderItem, user, loading, setLoading, setRefresh}) => {
   }
 
   return (
-    <Card style={styles.cardRow} key={orderItem.id}>
-      <Card.Content>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
+    <>
+      <Card style={styles.cardRow} key={orderItem.id}>
+        <Card.Title
+          title={'Order Placed: ' + date}
+          titleStyle={{
+            fontSize: 13,
+            color: 'grey',
+          }}
+        />
+
+        <Card.Content>
           <View
             style={{
               flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-around',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
             }}>
-            <Title>Status: {localizeStatus(orderItem.status)}</Title>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+              }}>
+              <Title>Status: {localizeStatus(orderItem.status)}</Title>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+              }}>
+              <Text>
+                {orderItem.user.role === '-MM7epSByKyZ4VVVPBYK'
+                  ? 'Date Pickup: '
+                  : 'Date Delivered: '}
+              </Text>
+              <Text>{orderItem.pickupDate}</Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+              }}>
+              <Title style={{color: '#ff7334'}}>Total:</Title>
+              <Title style={{color: '#ff7334'}}>
+                {numberWithCommas(orderItem.total)}
+              </Title>
+            </View>
           </View>
+        </Card.Content>
+        <Card.Actions>
           <View
             style={{
               flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
+              flexDirection: 'row',
               justifyContent: 'space-around',
             }}>
-            <Title>{orderItem.user.name}</Title>
-            <Title style={{color: '#ff7334'}}>
-              {orderItem.user.role === '-MM7epSByKyZ4VVVPBYK'
-                ? 'Reseller'
-                : 'Wholesaler'}
-            </Title>
-            <Text>Total: {numberWithCommas(orderItem.total)}</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                //addToCart();
+                //updateQuantity(cartItem.product.id);
+                //removeProduct(cartItem.product.id);
+                let array = [];
+                console.log('Selected orderr');
+                setSelectOrder(orderItem);
+                for (const [key, value] of Object.entries(orderItem.products)) {
+                  //console.log(key);
+                  // console.log(value);
+                  array.push(value);
+                }
+                //console.log(array);
+                setSelectProducts(array);
+                setShowOrder(true);
+              }}>
+              <Text style={styles.buttonTitle}>View Order</Text>
+            </TouchableOpacity>
           </View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-            }}>
-            <Text>Order Placed: {date}</Text>
-            <Text>
-              {orderItem.user.role === '-MM7epSByKyZ4VVVPBYK'
-                ? 'Date Pickup: '
-                : 'Date Delivered: '}
-              {orderItem.pickupDate}
-            </Text>
-          </View>
-        </View>
-      </Card.Content>
-      <Card.Actions>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-          }}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              //addToCart();
-              //updateQuantity(cartItem.product.id);
-              //removeProduct(cartItem.product.id);
-            }}>
-            <Text style={styles.buttonTitle}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      </Card.Actions>
-    </Card>
+        </Card.Actions>
+      </Card>
+    </>
   );
 };
 
@@ -134,11 +159,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   button: {
-    backgroundColor: '#8f0611',
-    marginLeft: 10,
+    backgroundColor: '#ff7334',
+    marginLeft: 30,
     marginRight: 30,
-    height: 50,
+    marginTop: 20,
+    height: 35,
     borderRadius: 5,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
