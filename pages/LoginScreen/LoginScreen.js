@@ -15,7 +15,7 @@ export default function LoginScreen({navigation, route}) {
     setLoading(true);
     firebase
       .auth()
-      .signInWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email.trim(), password.trim())
       .then((response) => {
         const uid = response.user.uid;
         const usersRef = firebase.database().ref('customers/' + uid);
@@ -33,6 +33,7 @@ export default function LoginScreen({navigation, route}) {
           })
           .catch((error) => {
             alert(error);
+            setLoading(false);
           });
       })
       .catch((error) => {

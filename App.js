@@ -256,7 +256,7 @@ export default function App() {
                     ),
                   }}
                   initialParams={{user}}
-                  children={OrdersList}
+                  component={OrdersList}
                 />
                 <Drawer.Screen
                   name="About"

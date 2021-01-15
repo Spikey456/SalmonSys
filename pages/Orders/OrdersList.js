@@ -4,32 +4,40 @@ import {firebase} from '../../components/firebase';
 import {Modal, Button} from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import OrderItem from './OrderItem';
 
 const OrdersList = ({navigation, route}) => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showFlatList, setShowFlatList] = useState(false);
 
   const refreshOrders = () => {
-    setLoadingOrders(true)
+    setLoadingOrders(true);
     let array = [];
+
     firebase
       .database()
       .ref('orders')
+      .orderByChild('user/id')
+      .equalTo(route.params.user.uid)
       .once('value')
       .then((snap) => {
         let field = snap.val();
-
-        console.log('Returning orderss');
+        //console.log(field);
         for (const [key, value] of Object.entries(field)) {
-          if (value.user.id === route.params.user.uid) {
-            value.id = key;
-            array.push(value);
-          }
+          value.id = key;
+          array.push(value);
+          //console.log(key);
+          //console.log(value);
         }
         setOrders(array);
-        setLoadingOrders(false)
-        console.log('Array set!');
-        //console.log(snap.val());
+        setShowFlatList(true);
+        setLoadingOrders(false);
+        setRefreshing(false);
+        setLoadingOrders(false);
+
+        console.log('Orders FOUND!');
       });
   };
 
@@ -41,90 +49,68 @@ const OrdersList = ({navigation, route}) => {
 
   useEffect(() => {
     if (orders.length > 0) {
-      console.log(orders);
+      console.log('FIND THIS!');
+      console.log(orders.length);
     }
   }, [orders]);
 
-  return (
-    <View>
-      <FlatList
-        data={orders}
-        extraData={loadingOrders}
-        renderItem={({item}) => {
-          //console.log('ITEM!');
+  /**    <FlatList
+          data={orders}
+          extraData={loadingOrders || refreshing}
+          renderItem={({item}) => {
+            console.log("ITEM FOUND");
+            console.log(item);
+          }}
+          keyExtractor={(item) => {
+            return item.id;
+          }}
+          refreshing={refreshing}
+          onRefresh={() => {
+            setOrders([]),
+              setLoadingOrders(true),
+              refreshOrders(),
+              setRefreshing(true);
+          }}
+        /> */
 
-          console.log(item);
-          return item.map((order) => {
-            console.log(order)
-
-            /*<Card style={styles.cardRow} key={product.id}>
-                  <Card.Content>
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <Image
-                        source={{
-                          uri: product.image ? product.image : imgDefault,
-                        }}
-                        style={{width: 120, height: 120, borderRadius: 10}}
-                      />
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'space-around',
-                        }}>
-                        <Title>{product.name}</Title>
-                        <Title style={{color: '#ff7334'}}>
-                          PHP
-                          {route.params.user.user.role ===
-                          '-MM7epSByKyZ4VVVPBYK' // is Reseller
-                            ? product.resellerPrice
-                            : product.wholeSalePrice}
-                        </Title>
-                      </View>
-                    </View>
-                  </Card.Content>
-                  <Card.Actions>
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                      }}>
-                      <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonTitle}>Add to Cart</Text>
-                      </TouchableOpacity>
-                      <InputSpinner
-                        max={10}
-                        min={2}
-                        step={2}
-                        colorMax={'#f04048'}
-                        colorMin={'#40c5f4'}
-                        value={this.state.number}
-                        onChange={(num) => {
-                          setQuantity(num);
-                        }}
-                      />
-                    </View>
-                  </Card.Actions>
-                </Card>*/
-          });
-        }}
-        keyExtractor={(item) => {
-          return item.id;
-        }}
-        refreshing={loadingOrders}
-        onRefresh={() => {
-          setOrders([]), setLoadingOrders(true), refreshOrders();
-        }}
-      />
-    </View>
-  );
+  if (loadingOrders || refreshing || !showFlatList || orders.length === 0) {
+    return (
+      <View>
+        <Spinner
+          visible={loadingOrders || refreshing || !showFlatList}
+          textContent={'Loading...'}
+          textStyle={{color: '#FFF'}}
+        />
+      </View>
+    );
+  } else {
+    return (
+      <View style={{flex: 1}}>
+        {orders.length > 0 && showFlatList ? (
+          <FlatList
+            data={orders}
+            extraData={loadingOrders || refreshing}
+            renderItem={({item}) => {
+              console.log('ITEM FOUND');
+              console.log(item);
+              return <OrderItem orderItem={item} key={item.id} />;
+            }}
+            keyExtractor={(item) => {
+              return item.id;
+            }}
+            refreshing={refreshing}
+            onRefresh={() => {
+              setOrders([]),
+                setLoadingOrders(true),
+                refreshOrders(),
+                setRefreshing(true);
+            }}
+          />
+        ) : null}
+        <Text>Hello</Text>
+      </View>
+    );
+  }
 };
 
 export default OrdersList;
