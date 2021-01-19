@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import InputSpinner from 'react-native-input-spinner';
@@ -14,6 +15,7 @@ import {firebase} from '../components/firebase';
 
 const CartItems = ({cartItem, user, loading, setLoading, setRefresh}) => {
   const [quantity, setQuantity] = useState(cartItem.quantity);
+  const [prevQuantity, setPrevQuantity] = useState(0);
   const [price, setPrice] = useState(
     user.user.role === '-MM7epSByKyZ4VVVPBYK' // is Reseller
       ? cartItem.quantity >= 15
@@ -34,6 +36,10 @@ const CartItems = ({cartItem, user, loading, setLoading, setRefresh}) => {
   );
   const imgDefault =
     'https://img2.pngio.com/documentation-screenshotlayer-api-default-png-250_250.png';
+
+  useEffect(() => {
+    setPrevQuantity(cartItem.quantity);
+  }, [])
 
   const identifyUserType = (type, quantity) => {
     console.log('Updating price');
@@ -90,12 +96,23 @@ const CartItems = ({cartItem, user, loading, setLoading, setRefresh}) => {
                 .database()
                 .ref(`customers/${user.uid}/checkout/products/${id}/product`)
                 .update({quantity: num})
-                .then(() => {
-                  setLoading(false);
-                  console.log('Quantity Updated');
-                  setPriceType(identifyUserType('USER', num));
-                  setPrice(identifyUserType('PRICE', num));
-                  console.log(identifyUserType('USER', num));
+                .then((snap) => {
+                 
+                  firebase.database().ref(`products/${id}`).once('value').then((snapshot) => {
+                    firebase.database().ref(`products/${id}`).update({
+                      stocks: prevQuantity > num ? parseInt(snapshot.val().stocks, 10) + 1 : parseInt(snapshot.val().stocks, 10) - 1,
+                    }).then(() => {
+                      console.log("Snap!")
+                      console.log(snap);
+                      setLoading(false);
+                      console.log('Quantity Updated');
+                      setPriceType(identifyUserType('USER', num));
+                      setPrice(identifyUserType('PRICE', num));
+                      console.log(identifyUserType('USER', num));
+                      setPrevQuantity(num);
+                    })
+                  })
+                  
                 });
             });
         });
@@ -104,20 +121,30 @@ const CartItems = ({cartItem, user, loading, setLoading, setRefresh}) => {
 
   const removeProduct = (id) => {
     setLoading(true);
-    firebase
-      .database()
-      .ref(`customers/${user.uid}/cart/${id}`)
-      .remove()
-      .then(() => {
-        firebase
+    firebase.database().ref(`customers/${user.uid}/cart/${id}`).once('value').then((snapshot) => {
+      firebase.database().ref(`products/${id}`).once('value').then((prodSnap) => {
+        firebase.database().ref(`products/${id}`).update({
+          stocks: prodSnap.val().stocks + snapshot.val().quantity
+        }).then(() => {
+          firebase
           .database()
-          .ref(`customers/${user.uid}/checkout/products/${id}`)
+          .ref(`customers/${user.uid}/cart/${id}`)
           .remove()
           .then(() => {
-            setRefresh(true);
-            setLoading(false);
+            firebase
+              .database()
+              .ref(`customers/${user.uid}/checkout/products/${id}`)
+              .remove()
+              .then(() => {
+                setRefresh(true);
+                setLoading(false);
+              });
           });
+        })
       });
+    
+    })
+   
   };
 
   useEffect(() => {

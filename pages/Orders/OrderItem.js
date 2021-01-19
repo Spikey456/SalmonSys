@@ -77,7 +77,21 @@ const OrderItem = ({
                 alignItems: 'center',
                 justifyContent: 'space-around',
               }}>
-              <Title>Status: {localizeStatus(orderItem.status)}</Title>
+              <Title
+                style={{
+                  color:
+                    orderItem.status === 'FULFILLED'
+                      ? '#32CD32'
+                      : orderItem.status === 'REJECTED'
+                      ? 'red'
+                      : orderItem.status === 'REQUEST_FOR_CANCEL'
+                      ? 'blue'
+                      : orderItem.status === 'CANCELLED'
+                      ? 'violet'
+                      : '#808000',
+                }}>
+                Status: {localizeStatus(orderItem.status)}
+              </Title>
             </View>
             <View
               style={{

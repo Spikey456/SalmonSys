@@ -83,9 +83,17 @@ const Items = ({product, user, setLoadingProducts, setShowModal}) => {
                       subtotals: subtotals,
                     })
                     .then(() => {
-                      console.log('Added to Cart');
-                      setShowModal(true);
-                      setLoadingProducts(false);
+                      firebase
+                        .database()
+                        .ref(`products/${product.id}`)
+                        .update({
+                          stocks: parseInt(product.stocks, 10) - quantity,
+                        })
+                        .then(() => {
+                          console.log('Added to Cart');
+                          setShowModal(true);
+                          setLoadingProducts(false);
+                        });
                     })
                     .catch((err) => {
                       console.log('there is an Error: ' + err);
