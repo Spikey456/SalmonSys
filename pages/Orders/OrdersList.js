@@ -180,48 +180,39 @@ const OrdersList = ({navigation, route}) => {
                   style={{
                     flex: 1,
                     flexDirection: 'column',
+                    
                   }}>
                   <Text style={{fontSize: 13, color: 'grey'}}>
                     Order Placed: {date}
                   </Text>
                   <View
                     style={{
-                      flex: 1,
-                      flexDirection: 'row',
+                      flexDirection: 'column',
                       marginTop: 50,
-                      justifyContent: 'center',
+                      alignItems: 'center',
+                      
                     }}>
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                      }}>
-                      <Title>Status:</Title>
+                   
+                      <Title>Status: <Text style={{paddingLeft: 50,color: '#ff7334'}}>{localizeStatus(selectOrder.status)}</Text></Title>
                       <Title>
                         {route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK'
                           ? 'Pickup Date:'
-                          : 'Delivery Date:'}
+                          : 'Delivery Date:'} 
+                          <Text style={{paddingLeft: 50,color: '#ff7334'}}> {selectOrder.pickupDate}</Text>
                       </Title>
-                      <Title>Customer Type:</Title>
-                    </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                      }}>
-                      <Title style={{color: '#ff7334'}}>
-                        {localizeStatus(selectOrder.status)}
-                      </Title>
-                      <Title style={{color: '#ff7334'}}>
-                        {selectOrder.pickupDate}
-                      </Title>
-                      <Title style={{color: '#ff7334'}}>
-                        {route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK'
+                      <Title>Customer Type: <Text style={{paddingLeft: 50,color: '#ff7334'}}>{route.params.user.user.role === '-MM7epSByKyZ4VVVPBYK'
                           ? 'Reseller'
-                          : 'Wholesaler'}
-                      </Title>
-                    </View>
+                          : 'Wholesaler'}</Text></Title>
+               
+                 
+                  </View>
+                  
+                  <View
+                    style={{
+                      marginTop: 25,
+                    }}
+                  >
+                    <Title>Products: </Title>
                   </View>
 
                   {selectProducts.map((item) => {
@@ -230,9 +221,12 @@ const OrdersList = ({navigation, route}) => {
                     return (
                       <View
                         style={{
-                          flex: 1,
                           flexDirection: 'row',
                           justifyContent: 'space-around',
+                          alignItems: 'center',
+                          borderColor: 'black',
+                          borderWidth: 0.5,
+                          borderRadius: 10
                         }}>
                         <Image
                           source={{
@@ -265,6 +259,12 @@ const OrdersList = ({navigation, route}) => {
                               : item.subtotals.subtotalWholeSaler,
                           )}
                         </Text>
+                        <View 
+                          style={{
+                            borderBottomColor: 'black',
+                            borderBottomWidth: 1,
+                          }}
+                        />
                       </View>
                     );
                   })}
@@ -272,9 +272,10 @@ const OrdersList = ({navigation, route}) => {
                     style={{
                       flex: 1,
                       flexDirection: 'row',
-                      justifyContent: 'flex-end',
+                      justifyContent: 'center',
+                      marginTop: 25,
                     }}>
-                    <Title>Total: {numberWithCommas(selectOrder.total)}</Title>
+                    <Title style={{color: '#ff7334'}}>Total: {numberWithCommas(selectOrder.total)}</Title>
                   </View>
                   {selectOrder.status === 'UNFULFILLED' ? (
                     <View
